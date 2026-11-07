@@ -70,7 +70,7 @@ Start the service:
 
     docker compose up -d --build
 
-The companion listens on 127.0.0.1:8088 on the Docker host by default. Configure your HTTPS reverse proxy to forward a hostname such as signup.example.net to that address. Do not expose the raw service port directly to the public Internet.
+The companion listens on 127.0.0.1:8088 on the Docker host by default. Configure your HTTPS reverse proxy to forward to that address. If the reverse proxy runs on another host or container, set APP_BIND to a private interface address reachable by that proxy, restrict the firewall so only the proxy can connect, and set FORWARDED_ALLOW_IPS to the exact proxy IP address. Never expose the companion port directly to the public Internet or trust arbitrary forwarded headers.
 
 The public form is served at /. Health checks use /healthz.
 
