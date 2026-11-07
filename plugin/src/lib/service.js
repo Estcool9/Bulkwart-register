@@ -12,6 +12,21 @@ export function normalizeServiceUrl(value) {
   return parsed.origin;
 }
 
+export function normalizeServicePath(value) {
+  const path = String(value || "").trim();
+  if (!path || path === "/") return "";
+  if (!path.startsWith("/") || path.startsWith("//") || /[?#\\]/.test(path)) {
+    throw new Error("Enter a service path beginning with one slash, without query or fragment.");
+  }
+  const segments = path.split("/").filter(Boolean);
+  if (!segments.length || segments.some((segment) =>
+    segment === "." || segment === ".." || !/^[A-Za-z0-9._~-]+$/.test(segment)
+  )) {
+    throw new Error("The service path contains an invalid segment.");
+  }
+  return "/" + segments.join("/");
+}
+
 export function parseResponse(response) {
   let body = response && response.body;
   if (typeof body === "string") {
