@@ -72,8 +72,8 @@ if len(ADMIN_API_TOKEN) < 32:
     raise RuntimeError("ADMIN_API_TOKEN must contain at least 32 characters.")
 if len(FIELD_ENCRYPTION_KEY) < 40:
     raise RuntimeError("FIELD_ENCRYPTION_KEY does not look like a Fernet key.")
-if PUBLIC_BASE_URL and not PUBLIC_BASE_URL.startswith("https://"):
-    raise RuntimeError("PUBLIC_BASE_URL must use HTTPS.")
+if not PUBLIC_BASE_URL.startswith("https://"):
+    raise RuntimeError("PUBLIC_BASE_URL must be set to an HTTPS URL.")
 
 LOCAL_RE = re.compile(r"^[a-z0-9](?:[a-z0-9._-]{0,30}[a-z0-9])?$")
 RESERVED = {

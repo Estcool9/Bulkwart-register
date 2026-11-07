@@ -3,6 +3,7 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DB_PATH=/data/requests.sqlite3
+ENV FORWARDED_ALLOW_IPS=127.0.0.1
 
 WORKDIR /app
 
@@ -19,4 +20,4 @@ RUN chown -R signup:signup /app
 USER signup
 EXPOSE 8080
 
-CMD ["uvicorn", "service.app:app", "--host", "0.0.0.0", "--port", "8080", "--proxy-headers", "--forwarded-allow-ips=127.0.0.1"]
+CMD ["sh", "-c", "exec uvicorn service.app:app --host 0.0.0.0 --port 8080 --proxy-headers --forwarded-allow-ips=$FORWARDED_ALLOW_IPS"]

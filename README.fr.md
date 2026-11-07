@@ -15,6 +15,12 @@ Aucune modification du code source de Bulwark n'est nécessaire.
 
 Bulwark Lite ne fournit pas l'interface de plugins nécessaire.
 
+## Raccorder un portail d'inscription existant
+
+Le plugin peut aussi gérer un portail FastAPI déjà installé. Conserve son formulaire public, sa base SQLite, sa clé de chiffrement, ses identifiants Stalwart et sa fonction de création de boîtes ; ajoute uniquement l'API d'administration protégée décrite dans integration/existing-portal/README.md. Cela évite une deuxième base et garde toutes les demandes dans la même file.
+
+Dans les paramètres du plugin, indique l'origine HTTPS du portail dans Signup service URL et son préfixe public (par exemple /signup) dans Signup service path. Utilise / si l'API est hébergée à la racine. Le service Docker autonome ci-dessous reste disponible pour une nouvelle installation ; il n'est pas nécessaire pour un portail existant.
+
 ## Installation rapide
 
 1. Copier .env.example vers .env.

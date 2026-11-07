@@ -1,7 +1,7 @@
 {
   "id": "stalwart-signup-manager",
   "name": "Stalwart Signup Manager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Bulkwart-register contributors",
   "description": "Review Stalwart mailbox signup requests and control manual or automatic approval from the Bulwark admin console.",
   "type": "ui-extension",
@@ -20,6 +20,14 @@
       "placeholder": "https://signup.example.net",
       "required": true,
       "default": ""
+    },
+    "servicePath": {
+      "type": "string",
+      "label": "Signup service path",
+      "description": "Optional path prefix when using an existing portal, for example /signup. Use / for the companion service at the origin root.",
+      "placeholder": "/signup",
+      "required": false,
+      "default": "/"
     },
     "apiToken": {
       "type": "secret",
