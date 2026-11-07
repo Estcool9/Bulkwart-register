@@ -1,5 +1,6 @@
 import os
 import tempfile
+import time
 import unittest
 
 from cryptography.fernet import Fernet
@@ -33,6 +34,18 @@ class CompanionApiTests(unittest.TestCase):
     def admin_headers(self):
         return {"Authorization": "Bearer " + os.environ["ADMIN_API_TOKEN"]}
 
+    def insert_pending_request(self, localpart):
+        conn = db()
+        conn.execute(
+            "INSERT INTO requests(localpart, domain, domain_id, encrypted_password, status, client_ip, created_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (localpart, "example.test", "test-domain-id", "encrypted-value", "pending", "127.0.0.1", int(time.time())),
+        )
+        request_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        conn.commit()
+        conn.close()
+        return request_id
+
     def test_health_endpoint(self):
         response = client.get("/healthz")
         self.assertEqual(response.status_code, 200)
@@ -43,15 +56,7 @@ class CompanionApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_admin_api_lists_pending_requests_without_secrets(self):
-        conn = db()
-        conn.execute(
-            "INSERT INTO requests(localpart, domain, domain_id, encrypted_password, status, client_ip, created_at) "
-            "VALUES(?,?,?,?,?,?,?)",
-            ("alice", "example.test", "test-domain-id", "encrypted-value", "pending", "127.0.0.1", 1000),
-        )
-        conn.commit()
-        conn.close()
-
+        self.insert_pending_request("alice")
         response = client.get("/api/v1/admin/requests", headers=self.admin_headers())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["requests"][0]["address"], "alice@example.test")
@@ -79,16 +84,7 @@ class CompanionApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
 
     def test_reject_erases_encrypted_password(self):
-        conn = db()
-        conn.execute(
-            "INSERT INTO requests(localpart, domain, domain_id, encrypted_password, status, client_ip, created_at) "
-            "VALUES(?,?,?,?,?,?,?)",
-            ("bob", "example.test", "test-domain-id", "encrypted-value", "pending", "127.0.0.1", 1000),
-        )
-        request_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
-        conn.commit()
-        conn.close()
-
+        request_id = self.insert_pending_request("bob")
         response = client.post(
             "/api/v1/admin/requests/" + str(request_id) + "/reject",
             headers=self.admin_headers(),
@@ -96,7 +92,10 @@ class CompanionApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
         conn = db()
-        row = conn.execute("SELECT status, encrypted_password FROM requests WHERE id=?", (request_id,)).fetchone()
+        row = conn.execute(
+            "SELECT status, encrypted_password FROM requests WHERE id=?",
+            (request_id,),
+        ).fetchone()
         conn.close()
         self.assertEqual(row["status"], "rejected")
         self.assertIsNone(row["encrypted_password"])
