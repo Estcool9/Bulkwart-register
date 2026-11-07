@@ -1,0 +1,42 @@
+{
+  "id": "stalwart-signup-manager",
+  "name": "Stalwart Signup Manager",
+  "version": "0.1.0",
+  "author": "Bulkwart-register contributors",
+  "description": "Review Stalwart mailbox signup requests and control manual or automatic approval from the Bulwark admin console.",
+  "type": "ui-extension",
+  "minAppVersion": "1.20.0",
+  "permissions": [
+    "admin:config",
+    "http:proxy",
+    "ui:admin-page"
+  ],
+  "entrypoint": "index.js",
+  "configSchema": {
+    "serviceUrl": {
+      "type": "string",
+      "label": "Signup service URL",
+      "description": "HTTPS origin of the companion service, for example https://signup.example.net. Do not include a path or trailing slash.",
+      "placeholder": "https://signup.example.net",
+      "required": true,
+      "default": ""
+    },
+    "apiToken": {
+      "type": "secret",
+      "label": "Admin API token",
+      "description": "The ADMIN_API_TOKEN configured in the companion service. It is stored by Bulwark and injected by the server-side proxy.",
+      "required": true
+    }
+  },
+  "credentials": {
+    "signup-api": {
+      "label": "Stalwart Signup companion service",
+      "scope": "admin",
+      "inject": {
+        "type": "bearer"
+      },
+      "secretKey": "apiToken",
+      "originKey": "serviceUrl"
+    }
+  }
+}

@@ -1,0 +1,1 @@
+"""Stalwart signup companion service."""

@@ -1,0 +1,14 @@
+{
+  "name": "bulwark-stalwart-signup",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:plugin": "node scripts/build-plugin.mjs",
+    "test": "node --test plugin/test/*.test.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "jszip": "^3.10.1"
+  }
+}
