@@ -1,7 +1,7 @@
 const React = require("react");
 const api = require("@plugin-host");
 const UI = require("@plugin-host/ui");
-const { normalizeServiceUrl, parseResponse } = require("./lib/service.js");
+const { normalizeServiceUrl, normalizeServicePath, parseResponse } = require("./lib/service.js");
 
 const h = React.createElement;
 const {
@@ -20,7 +20,7 @@ const {
 
 const CREDENTIAL_ID = "signup-api";
 
-async function serviceRequest(baseUrl, path, options) {
+async function serviceRequest(baseUrl, servicePath, path, options) {
   const opts = options || {};
   const headers = { Accept: "application/json" };
   const init = {
@@ -32,7 +32,7 @@ async function serviceRequest(baseUrl, path, options) {
     headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(opts.body);
   }
-  const response = await api.proxy.fetch(CREDENTIAL_ID, baseUrl + path, init);
+  const response = await api.proxy.fetch(CREDENTIAL_ID, baseUrl + servicePath + path, init);
   return parseResponse(response);
 }
 
@@ -43,6 +43,7 @@ function formatDate(timestamp) {
 
 function AdminPage() {
   const [serviceUrl, setServiceUrl] = React.useState("");
+  const [servicePath, setServicePath] = React.useState("");
   const [configured, setConfigured] = React.useState(false);
   const [approvalMode, setApprovalMode] = React.useState("manual");
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(false);
@@ -60,12 +61,14 @@ function AdminPage() {
     try {
       const config = await api.config.get();
       const base = normalizeServiceUrl(config && config.serviceUrl);
+      const prefix = normalizeServicePath(config && config.servicePath);
       setServiceUrl(base);
+      setServicePath(prefix);
       setConfigured(true);
 
       const results = await Promise.all([
-        serviceRequest(base, "/api/v1/admin/settings"),
-        serviceRequest(base, "/api/v1/admin/requests"),
+        serviceRequest(base, prefix, "/api/v1/admin/settings"),
+        serviceRequest(base, prefix, "/api/v1/admin/requests"),
       ]);
       setApprovalMode(results[0].approvalMode === "auto" ? "auto" : "manual");
       setNotificationsEnabled(Boolean(results[0].notificationsEnabled));
@@ -89,7 +92,7 @@ function AdminPage() {
     setError("");
     setNotice("");
     try {
-      await serviceRequest(serviceUrl, "/api/v1/admin/settings", {
+      await serviceRequest(serviceUrl, servicePath, "/api/v1/admin/settings", {
         method: "PUT",
         body: { approvalMode: nextMode },
       });
@@ -110,7 +113,7 @@ function AdminPage() {
     setNotice("");
     try {
       const path = "/api/v1/admin/requests/" + encodeURIComponent(item.id) + "/" + action;
-      const result = await serviceRequest(serviceUrl, path, { method: "POST" });
+      const result = await serviceRequest(serviceUrl, servicePath, path, { method: "POST" });
       setNotice(action === "approve"
         ? "Mailbox created: " + (result.address || item.address)
         : "Request rejected: " + item.address);

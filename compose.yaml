@@ -6,8 +6,9 @@ services:
       - .env
     environment:
       DB_PATH: /data/requests.sqlite3
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-127.0.0.1}
     ports:
-      - "127.0.0.1:8088:8080"
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8088}:8080"
     volumes:
       - signup_data:/data
     healthcheck:
