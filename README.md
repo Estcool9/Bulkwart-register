@@ -18,6 +18,12 @@ No Bulwark source fork or modification is needed.
 
 Bulwark Lite does not provide the plugin/admin-console extension points required by this integration.
 
+## Integrate with an existing signup portal
+
+The plugin can also manage an existing FastAPI signup portal. Keep its public form, SQLite request database, encryption key, Stalwart credentials and mailbox-creation routine; add only the protected admin API described in integration/existing-portal/README.md. This avoids a second signup database and keeps existing requests in one queue.
+
+Configure the plugin with the portal HTTPS origin as Signup service URL and the existing public path prefix (for example /signup) as Signup service path. Use / when the API is hosted at the origin root. The standalone Docker companion below remains available for new installations and is not required for an existing portal.
+
 ## How it works
 
 1. A visitor requests an email address through the public signup form.
